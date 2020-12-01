@@ -14,6 +14,23 @@ class FetchPost extends PostEvent {
   List<Object> get props => [];
 }
 
+class FetchSpecificPost extends PostEvent {
+  final String userId;
+
+  const FetchSpecificPost(this.userId);
+
+  FetchSpecificPost copyWith({
+    String userId,
+  }) {
+    return FetchSpecificPost(
+      userId ?? this.userId,
+    );
+  }
+
+  @override
+  List<Object> get props => [userId];
+}
+
 class RefreshPost extends PostEvent {
   const RefreshPost();
 

@@ -43,6 +43,14 @@ class PostBloc extends Bloc<PostEvent, PostState> {
           yield PostError();
         }
       }
+    } else if (event is FetchSpecificPost) {
+      yield PostLoading();
+      try {
+        final posts = await postRepository.fetchSpecificPost(event.userId);
+        yield PostLoaded(posts: posts, hasReachedMax: true);
+      } catch (_) {
+        yield PostError();
+      }
     } else if (event is RefreshPost) {
       try {
         yield PostLoaded(posts: []);

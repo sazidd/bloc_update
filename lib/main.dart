@@ -7,9 +7,7 @@ import 'src/repository/post_repository.dart';
 
 void main() {
   runApp(BlocProvider(
-    create: (_) => PostBloc(
-      postRepository: PostRepository(),
-    )..add(FetchPost()),
+    create: (_) => PostBloc(postRepository: PostRepository())..add(FetchPost()),
     child: App(),
   ));
 }

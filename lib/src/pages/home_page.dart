@@ -12,7 +12,7 @@ class _HomePageState extends State<HomePage> {
   final _scrollControllerPosts = ScrollController();
   final _scrollControllerTodos = ScrollController();
   final _scrollThreshold = 200.0;
-
+  bool _isClicked = false;
   PostBloc _postBloc;
 
   @override
@@ -37,9 +37,7 @@ class _HomePageState extends State<HomePage> {
         actions: [
           IconButton(
             icon: Icon(Icons.refresh),
-            onPressed: () {
-              _postBloc.add(RefreshPost());
-            },
+            onPressed: () => _postBloc.add(RefreshPost()),
           ),
         ],
       ),
@@ -51,7 +49,7 @@ class _HomePageState extends State<HomePage> {
           if (state is PostError) {
             return Center(
                 child: Text(
-              'failed to fetch posts',
+              'Failed to fetch posts',
               style: TextStyle(fontSize: 20, color: Colors.red),
             ));
           }
@@ -59,42 +57,77 @@ class _HomePageState extends State<HomePage> {
             if (state.posts.isEmpty) {
               return Center(
                 child: Text(
-                  'No data found!',
+                  'No posts found!',
                   style: TextStyle(fontSize: 20, color: Colors.red),
                 ),
               );
             }
-            return RefreshIndicator(
-              onRefresh: _onRefresh,
-              child: ListView.separated(
-                separatorBuilder: (context, index) => Divider(),
-                itemCount: state.hasReachedMax
-                    ? state.posts.length
-                    : state.posts.length + 1,
-                controller: _scrollControllerPosts,
-                itemBuilder: (context, index) {
-                  return index >= state.posts.length
-                      ? Container(
-                          alignment: Alignment.center,
-                          child: Center(
-                            child: SizedBox(
-                              width: 33,
-                              height: 33,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 1.5,
-                              ),
-                            ),
+            return Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    RaisedButton(
+                        onPressed: () => _postBloc.add(FetchSpecificPost('5')),
+                        color: Theme.of(context).primaryColor,
+                        textColor: Colors.white,
+                        child: Text("Post5")),
+                    RaisedButton(
+                        onPressed: () => _postBloc.add(FetchSpecificPost('10')),
+                        color: Theme.of(context).primaryColor,
+                        textColor: Colors.white,
+                        child: Text("Post10")),
+                  ],
+                ),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: _onRefresh,
+                    child: _isClicked
+                        ? ListView.separated(
+                            separatorBuilder: (context, index) => Divider(),
+                            itemCount: state.posts.length,
+                            itemBuilder: (context, index) {
+                              return ListTile(
+                                leading: Text('${state.posts[index].id}'),
+                                title: Text(state.posts[index].title),
+                                isThreeLine: true,
+                                // subtitle: Text(state.posts[index].body),
+                                dense: true,
+                              );
+                            },
+                          )
+                        : ListView.separated(
+                            separatorBuilder: (context, index) => Divider(),
+                            itemCount: state.hasReachedMax
+                                ? state.posts.length
+                                : state.posts.length + 1,
+                            controller: _scrollControllerPosts,
+                            itemBuilder: (context, index) {
+                              return index >= state.posts.length
+                                  ? Container(
+                                      alignment: Alignment.center,
+                                      child: Center(
+                                        child: SizedBox(
+                                          width: 33,
+                                          height: 33,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 1.5,
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                  : ListTile(
+                                      leading: Text('${state.posts[index].id}'),
+                                      title: Text(state.posts[index].title),
+                                      isThreeLine: true,
+                                      subtitle: Text(state.posts[index].body),
+                                      dense: true,
+                                    );
+                            },
                           ),
-                        )
-                      : ListTile(
-                          leading: Text('${state.posts[index].id}'),
-                          title: Text(state.posts[index].title),
-                          isThreeLine: true,
-                          subtitle: Text(state.posts[index].body),
-                          dense: true,
-                        );
-                },
-              ),
+                  ),
+                ),
+              ],
             );
           }
           return Container();
